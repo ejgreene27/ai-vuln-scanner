@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Ping — VulnApp{% endblock %}
+
+{% block content %}
+<h2>Ping Utility</h2>
+<span class="vuln-badge">OS Command Injection</span>
+
+<form method="POST" action="/ping">
+  <label for="host">Hostname or IP</label>
+  <input type="text" id="host" name="host" placeholder="127.0.0.1" autocomplete="off" />
+  <button type="submit">Ping</button>
+</form>
+
+{% if output %}
+  <div style="margin-top:20px;">
+    <div style="font-size:0.78rem; color:#6b7280; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">Output</div>
+    <pre>{{ output }}</pre>
+  </div>
+{% endif %}
+
+<div class="hint">
+  <strong>Try:</strong> <code>127.0.0.1; whoami</code> to inject an additional OS command via the host field.
+</div>
+{% endblock %}

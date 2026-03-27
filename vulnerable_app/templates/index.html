@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Home — VulnApp{% endblock %}
+
+{% block content %}
+<h2>Welcome to VulnApp</h2>
+<p style="color:#9ca3af; margin: 8px 0 28px;">
+  An intentionally vulnerable Flask application for automated security scanner testing.
+</p>
+
+<div style="display:grid; gap:16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-top: 8px;">
+
+  <a href="/login" style="text-decoration:none;">
+    <div style="background:#1a1a1a; border:1px solid #2d2d2d; border-radius:8px; padding:20px; transition: border-color 0.15s;"
+         onmouseover="this.style.borderColor='#f87171'" onmouseout="this.style.borderColor='#2d2d2d'">
+      <div style="font-size:1.6rem; margin-bottom:8px;">🗄️</div>
+      <div style="font-weight:600; color:#f8f8f8; margin-bottom:4px;">Login</div>
+      <div style="font-size:0.8rem; color:#6b7280;">SQL Injection via string-formatted query</div>
+    </div>
+  </a>
+
+  <a href="/search" style="text-decoration:none;">
+    <div style="background:#1a1a1a; border:1px solid #2d2d2d; border-radius:8px; padding:20px; transition: border-color 0.15s;"
+         onmouseover="this.style.borderColor='#f87171'" onmouseout="this.style.borderColor='#2d2d2d'">
+      <div style="font-size:1.6rem; margin-bottom:8px;">🔍</div>
+      <div style="font-weight:600; color:#f8f8f8; margin-bottom:4px;">Search</div>
+      <div style="font-size:0.8rem; color:#6b7280;">Reflected XSS via unescaped user input</div>
+    </div>
+  </a>
+
+  <a href="/ping" style="text-decoration:none;">
+    <div style="background:#1a1a1a; border:1px solid #2d2d2d; border-radius:8px; padding:20px; transition: border-color 0.15s;"
+         onmouseover="this.style.borderColor='#f87171'" onmouseout="this.style.borderColor='#2d2d2d'">
+      <div style="font-size:1.6rem; margin-bottom:8px;">🖥️</div>
+      <div style="font-weight:600; color:#f8f8f8; margin-bottom:4px;">Ping Utility</div>
+      <div style="font-size:0.8rem; color:#6b7280;">OS command injection via shell=True</div>
+    </div>
+  </a>
+
+</div>
+
+<div class="hint" style="margin-top:36px;">
+  <strong>Test credentials:</strong> username <code style="color:#fbbf24;">admin</code> / password <code style="color:#fbbf24;">password123</code>
+</div>
+{% endblock %}

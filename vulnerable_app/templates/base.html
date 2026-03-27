@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Vulnerable App{% endblock %}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .banner {
+      background: #b91c1c;
+      color: #fff;
+      text-align: center;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+    }
+
+    header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #2d2d2d;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      color: #f87171;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    nav {
+      background: #141414;
+      border-bottom: 1px solid #2d2d2d;
+      padding: 0 32px;
+      display: flex;
+      gap: 0;
+    }
+
+    nav a {
+      color: #a0a0a0;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 12px 16px;
+      display: block;
+      transition: color 0.15s, border-bottom 0.15s;
+      border-bottom: 2px solid transparent;
+    }
+
+    nav a:hover, nav a.active {
+      color: #f87171;
+      border-bottom-color: #f87171;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 32px;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      color: #f8f8f8;
+      margin-bottom: 8px;
+    }
+
+    .vuln-badge {
+      display: inline-block;
+      background: #7f1d1d;
+      color: #fca5a5;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: #9ca3af;
+      margin-bottom: 4px;
+      margin-top: 16px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      max-width: 400px;
+      padding: 9px 12px;
+      background: #1e1e1e;
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+      color: #e0e0e0;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus {
+      border-color: #f87171;
+    }
+
+    button[type="submit"] {
+      margin-top: 18px;
+      padding: 9px 22px;
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button[type="submit"]:hover {
+      background: #b91c1c;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: #1a1a1a;
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+      font-size: 0.88rem;
+    }
+
+    .result-box.success { border-color: #16a34a; color: #86efac; }
+    .result-box.error   { border-color: #dc2626; color: #fca5a5; }
+
+    pre {
+      background: #111;
+      border: 1px solid #2d2d2d;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #a3e635;
+      margin-top: 16px;
+    }
+
+    .hint {
+      margin-top: 24px;
+      padding: 12px 16px;
+      background: #1c1917;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.82rem;
+      color: #d6b97b;
+    }
+
+    .hint strong { color: #fbbf24; }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.75rem;
+      color: #4b4b4b;
+      border-top: 1px solid #1f1f1f;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    ⚠️ This application is intentionally vulnerable. Do not deploy to production.
+  </div>
+
+  <header>
+    <h1>🔓 VulnApp</h1>
+  </header>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/login">Login (SQLi)</a>
+    <a href="/search">Search (XSS)</a>
+    <a href="/ping">Ping (CMDi)</a>
+  </nav>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    VulnApp &mdash; for security research and scanner testing only
+  </footer>
+
+</body>
+</html>

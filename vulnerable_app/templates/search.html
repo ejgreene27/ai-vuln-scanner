@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Search — VulnApp{% endblock %}
+
+{% block content %}
+<h2>Search</h2>
+<span class="vuln-badge">Reflected XSS</span>
+
+<form method="GET" action="/search">
+  <label for="q">Search term</label>
+  <input type="text" id="q" name="q" value="{{ term }}" placeholder="Enter a search term..." autocomplete="off" />
+  <button type="submit">Search</button>
+</form>
+
+{% if term %}
+  <div class="result-box" style="margin-top:20px;">
+    {{ results_html | safe }}
+  </div>
+{% endif %}
+
+<div class="hint">
+  <strong>Try:</strong> <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code> in the search box to trigger reflected XSS.
+</div>
+{% endblock %}

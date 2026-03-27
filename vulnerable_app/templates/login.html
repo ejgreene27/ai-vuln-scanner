@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Login — VulnApp{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+<span class="vuln-badge">SQL Injection</span>
+
+<form method="POST" action="/login">
+  <label for="username">Username</label>
+  <input type="text" id="username" name="username" placeholder="admin" autocomplete="off" />
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" placeholder="password" />
+
+  <button type="submit">Login</button>
+</form>
+
+{% if result %}
+  <div class="result-box {% if 'successful' in result %}success{% else %}error{% endif %}">
+    {{ result }}
+  </div>
+{% endif %}
+
+{% if query %}
+  <div style="margin-top:20px;">
+    <div style="font-size:0.78rem; color:#6b7280; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">Executed query</div>
+    <pre>{{ query }}</pre>
+  </div>
+{% endif %}
+
+<div class="hint">
+  <strong>Try:</strong> username <code>' OR '1'='1' --</code> to bypass authentication via SQL injection.
+</div>
+{% endblock %}
