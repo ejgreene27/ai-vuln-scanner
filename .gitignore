@@ -22,4 +22,5 @@ env/
 
 # Reports
 reports/raw_scan_output.json
+reports/ai_analysis.md
 .env
