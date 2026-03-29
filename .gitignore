@@ -19,3 +19,6 @@ env/
 
 # macOS
 .DS_Store
+
+# Reports
+reports/raw_scan_output.json
