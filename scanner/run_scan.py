@@ -9,7 +9,10 @@ import time
 
 from zapv2 import ZAPv2
 
-from config import ZAP_API_URL, REPORT_OUTPUT_PATH, TARGET_URL
+try:
+    from scanner.config import ZAP_API_URL, REPORT_OUTPUT_PATH, TARGET_URL
+except ImportError:
+    from config import ZAP_API_URL, REPORT_OUTPUT_PATH, TARGET_URL
 
 
 def wait_for_progress(poll_fn, label: str, interval: float = 2.0) -> None:
