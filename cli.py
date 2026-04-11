@@ -4,9 +4,10 @@ cli.py — Command-line interface for the AI-Powered Vulnerability Scanner.
 Usage:
     python cli.py                                      # quick scan, no AI analysis
     python cli.py --scan-type full                     # spider + active scan
-    python cli.py --ai-analyze                         # quick scan + Claude analysis
+    python cli.py --ai-analyze                         # quick scan + single-model analysis
+    python cli.py --compare                            # quick scan + multi-model comparison
     python cli.py --target http://192.168.1.10:8080    # custom target
-    python cli.py --scan-type full --ai-analyze --verbose
+    python cli.py --scan-type full --compare --verbose
 """
 
 import argparse
@@ -32,6 +33,7 @@ from analysis.analyze import (
     load_prompt,
     save_report as save_analysis,
 )
+from multi_model import compare_models, save_comparison, print_comparison_summary
 
 REPO_ROOT = Path(__file__).resolve().parent
 
@@ -62,9 +64,10 @@ def build_parser() -> argparse.ArgumentParser:
             "  python cli.py\n"
             "  python cli.py --scan-type full\n"
             "  python cli.py --ai-analyze\n"
+            "  python cli.py --compare\n"
             "  python cli.py --target http://192.168.1.10:8080 --scan-type full\n"
-            "  python cli.py --scan-type full --ai-analyze --verbose\n"
-            "  python cli.py --output results/my_scan.json --ai-analyze"
+            "  python cli.py --scan-type full --compare --verbose\n"
+            "  python cli.py --output results/my_scan.json --compare"
         ),
     )
 
@@ -97,6 +100,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Send findings to Claude AI for analysis and generate a Markdown "
             "remediation report. Requires ANTHROPIC_API_KEY in .env (default: off)"
+        ),
+    )
+    parser.add_argument(
+        "--compare",
+        action="store_true",
+        help=(
+            "Send findings to multiple Claude models (Sonnet and Haiku) and "
+            "generate a side-by-side comparison report. "
+            "Requires ANTHROPIC_API_KEY in .env (default: off)"
         ),
     )
     parser.add_argument(
@@ -215,6 +227,14 @@ def main() -> None:
 
     output_path = Path(args.output)
 
+    # Determine which AI mode is active for the config banner
+    if args.compare:
+        ai_mode = "multi-model comparison"
+    elif args.ai_analyze:
+        ai_mode = "single-model (Sonnet)"
+    else:
+        ai_mode = "disabled"
+
     # Print run configuration
     print("\n" + "=" * 52)
     print("  AI-Powered Vulnerability Scanner")
@@ -222,7 +242,7 @@ def main() -> None:
     print(f"  Target      : {args.target}")
     print(f"  Scan type   : {args.scan_type}")
     print(f"  Output      : {args.output}")
-    print(f"  AI analysis : {'enabled' if args.ai_analyze else 'disabled'}")
+    print(f"  AI analysis : {ai_mode}")
     if args.verbose:
         print(f"  ZAP API     : {ZAP_API_URL}")
         print(f"  Verbose     : on")
@@ -234,10 +254,23 @@ def main() -> None:
     zap = connect_to_zap(args.verbose)
     alerts = run_scan(zap, args.target, args.scan_type, str(output_path), args.verbose)
 
-    # Phase 2: AI analysis (optional)
+    # Phase 2: AI analysis — single-model (optional)
     report_path = None
     if args.ai_analyze:
         report_path = run_ai_analysis(output_path, args.verbose)
+
+    # Phase 2 (alt): multi-model comparison (optional, mutually exclusive with --ai-analyze)
+    comparison_path = None
+    if args.compare:
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            print("\n[!] ANTHROPIC_API_KEY is not set. Add it to your .env file.")
+            raise SystemExit(1)
+
+        print("\n[*] Running multi-model comparison ...")
+        comparison = compare_models(output_path, verbose=args.verbose)
+        comparison_path = output_path.with_name(output_path.stem + "_comparison.json")
+        save_comparison(comparison, comparison_path)
+        print_comparison_summary(comparison)
 
     # Final summary
     elapsed = time.time() - start_time
@@ -248,6 +281,8 @@ def main() -> None:
     print(f"  Raw output   : {output_path}")
     if report_path:
         print(f"  AI report    : {report_path}")
+    if comparison_path:
+        print(f"  Comparison   : {comparison_path}")
     print(f"  Time elapsed : {elapsed:.1f}s")
     print("=" * 52 + "\n")
 

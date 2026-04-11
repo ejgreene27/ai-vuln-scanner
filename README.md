@@ -114,6 +114,7 @@ The script will verify ZAP and the Flask app are reachable, run the scan, send f
 ai-vuln-scanner/
 ├── cli.py                   # CLI entry point (Phase 5) — use this for flexible scanning
 ├── run_pipeline.py          # Automated pipeline entry point — runs the full workflow
+├── multi_model.py           # Multi-model AI comparison (Phase 6)
 │
 ├── vulnerable_app/          # Intentionally vulnerable Flask app (scan target)
 │   ├── app.py               # Routes with SQLi, XSS, and command injection
@@ -232,6 +233,96 @@ examples:
 
 > **Note:** The AI report is saved alongside the JSON output with an `_ai_analysis.md` suffix.
 > For example, `--output results/my_scan.json` generates `results/my_scan_ai_analysis.md`.
+
+---
+
+## Phase 6: Multi-Model AI Comparison
+
+`--compare` sends the same deduplicated ZAP findings to **Claude Sonnet** and **Claude Haiku** in a single run. Each model produces its own full analysis; the tool captures response time and token usage alongside the text so you can evaluate quality vs. cost tradeoffs without running the scan twice.
+
+### How it works
+
+1. Deduplicates the raw ZAP alerts (same logic as `--ai-analyze`)
+2. Builds one shared prompt from the findings
+3. Sends that prompt sequentially to Claude Sonnet then Claude Haiku
+4. Saves a JSON file containing both analyses and all metadata
+5. Prints a terminal summary with a side-by-side metrics table
+
+### Usage
+
+```bash
+# Quick scan + multi-model comparison
+python cli.py --compare
+
+# Full scan + multi-model comparison + verbose output
+python cli.py --scan-type full --compare --verbose
+
+# Custom target with comparison
+python cli.py --target http://192.168.1.10:8080 --compare
+
+# Custom output path (comparison JSON is saved alongside it)
+python cli.py --output results/my_scan.json --compare
+```
+
+> **Note:** `--compare` and `--ai-analyze` are independent. You can use both flags in the same run to get a single-model Markdown report **and** a multi-model JSON comparison, or use either one alone.
+
+### Output files
+
+| File | Description |
+|---|---|
+| `results/scan_output.json` | Raw ZAP alerts (always written) |
+| `results/scan_output_comparison.json` | Both models' full analyses + metadata |
+
+The comparison JSON includes the complete text of each model's report under `models[].analysis` so you can diff them programmatically or pipe them into any downstream tool.
+
+### Sample terminal summary
+
+```
+==============================================================
+  Multi-Model Comparison Summary
+==============================================================
+  Findings analyzed : 6 unique vulnerability type(s)
+  Timestamp         : 2026-04-11T14:22:08+00:00
+
+  Model                        Time      In Tokens   Out Tokens    Total
+  --------------------------------------------------------------
+  Claude Sonnet (claude-so...)  18.4s         1,842        2,631    4,473
+  Claude Haiku (claude-hai...)   4.9s         1,842        2,108    3,950
+
+  Speed advantage  : Claude Haiku was 3.8x faster (4.9s vs 18.4s)
+  Output tokens    : Claude Haiku used 523 fewer tokens (−20%)
+==============================================================
+```
+
+### Sample comparison JSON structure
+
+```json
+{
+  "scan_file": "results/scan_output.json",
+  "timestamp": "2026-04-11T14:22:08+00:00",
+  "findings_count": 6,
+  "models": [
+    {
+      "model": "claude-sonnet-4-0",
+      "display_name": "Claude Sonnet",
+      "response_time_s": 18.4,
+      "input_tokens": 1842,
+      "output_tokens": 2631,
+      "total_tokens": 4473,
+      "analysis": "## Executive Summary\n\n..."
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "display_name": "Claude Haiku",
+      "response_time_s": 4.9,
+      "input_tokens": 1842,
+      "output_tokens": 2108,
+      "total_tokens": 3950,
+      "analysis": "## Executive Summary\n\n..."
+    }
+  ]
+}
+```
 
 ---
 
